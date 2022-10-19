@@ -1,6 +1,15 @@
 input.onPinPressed(TouchPin.P0, function () {
     control.reset()
 })
+function endGame () {
+    music.startMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.OnceInBackground)
+    for (let index = 0; index < 2; index++) {
+        basic.showIcon(IconNames.Yes)
+        basic.clearScreen()
+        basic.pause(100)
+    }
+    game.gameOver()
+}
 function spawStuff () {
     pl = game.createSprite(randomNum(), randomNum())
     en = game.createSprite(randomNum(), randomNum())
@@ -19,16 +28,34 @@ function spawStuff () {
         control.reset()
     }
 }
+function moveEnemy (theEnemy: game.LedSprite) {
+    theEnemy.set(LedSpriteProperty.X, randomNum())
+    theEnemy.set(LedSpriteProperty.Y, randomNum())
+    if (pl.isTouching(theEnemy)) {
+        moveEnemy(theEnemy)
+    }
+}
 function randomNum () {
     rand = randint(0, 4)
     return rand
+}
+function moveAllEnemies () {
+    if (!(en.isDeleted())) {
+        moveEnemy(en)
+    }
+    if (!(en2.isDeleted())) {
+        moveEnemy(en2)
+    }
+    if (!(en3.isDeleted())) {
+        moveEnemy(en3)
+    }
 }
 let rand = 0
 let en3: game.LedSprite = null
 let en2: game.LedSprite = null
 let en: game.LedSprite = null
 let pl: game.LedSprite = null
-let speed = 150
+let speed = 100
 game.setScore(0)
 spawStuff()
 basic.forever(function () {
@@ -60,4 +87,14 @@ basic.forever(function () {
         en3.delete()
         game.addScore(1)
     }
+    if (en.isDeleted()) {
+        if (en2.isDeleted()) {
+            if (en3.isDeleted()) {
+                endGame()
+            }
+        }
+    }
+})
+loops.everyInterval(3000, function () {
+    moveAllEnemies()
 })
